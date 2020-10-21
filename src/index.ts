@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import express from 'express';
 
 const sRoutes = Symbol('Routes');
+const sMiddleware = Symbol('Middleware');
 
 interface ControllerClass extends NewableFunction {
   route: string;
@@ -107,6 +108,26 @@ export function del(path = '/') {
   };
 }
 
+// Middleware method decorator factory
+// Static methods will be installed as app-level middleware.
+// Instance methods will be installed at the ControllerClass level.
+export function middleware() {
+  return function(
+    target: ControllerClass['prototype'] | ControllerClass,
+    propertyKey: string,
+    descriptor: PropertyDescriptor
+  ): PropertyDescriptor {
+    const middleware = (Reflect.getOwnMetadata(sMiddleware, target) || []) as
+      (keyof ControllerClass | keyof ControllerClass['prototype'])[];
+
+    middleware.push(propertyKey);
+    
+    Reflect.defineMetadata(sMiddleware, middleware, target);
+    
+    return descriptor;
+  };
+}
+
 
 // Controller class decorator factory
 export function controller() {
@@ -115,13 +136,32 @@ export function controller() {
   };
 }
 
+// Initializes an app with a set of route controller classes
 export function initAppControllers(
   app: express.Router,
   controllers: ControllerClass[]
 ): express.Router {
   controllers.forEach(controllerCls => {
-    const controller = new controllerCls();
     const router = express.Router();
+
+    // Handle global middleware
+    const globalMiddleware = (
+      Reflect.getOwnMetadata(sMiddleware, controllerCls) || []) as (keyof typeof controllerCls)[];
+    
+    globalMiddleware.forEach(handler => {
+      app.use((req, res, next) => controllerCls[handler](req, res, next));
+    });
+
+    // Controller-level middleware
+    const controller = new controllerCls();
+    const middleware = (Reflect.getOwnMetadata(sMiddleware, controllerCls.prototype) || []) as
+      (keyof typeof controllerCls.prototype)[];
+
+    middleware.forEach(handler => {
+      router.use((req, res, next) => controller[handler](req, res, next));
+    });
+
+    // Register controller routes
     const routeHandlers = (Reflect.getOwnMetadata(sRoutes, controllerCls.prototype) || {}) as RouteConfig;
 
     for (const [method, handlers] of Object.entries(routeHandlers)) {

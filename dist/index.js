@@ -1,10 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.initAppControllers = exports.controller = exports.del = exports.patch = exports.put = exports.post = exports.get = void 0;
+exports.initAppControllers = exports.controller = exports.middleware = exports.del = exports.patch = exports.put = exports.post = exports.get = void 0;
 const tslib_1 = require("tslib");
 require("reflect-metadata");
 const express_1 = tslib_1.__importDefault(require("express"));
 const sRoutes = Symbol('Routes');
+const sMiddleware = Symbol('Middleware');
 // Route method decorator factories
 function get(path = '/') {
     return function (target, propertyKey, descriptor) {
@@ -66,6 +67,18 @@ function del(path = '/') {
     };
 }
 exports.del = del;
+// Middleware method decorator factory
+// Static methods will be installed as app-level middleware.
+// Instance methods will be installed at the ControllerClass level.
+function middleware() {
+    return function (target, propertyKey, descriptor) {
+        const middleware = (Reflect.getOwnMetadata(sMiddleware, target) || []);
+        middleware.push(propertyKey);
+        Reflect.defineMetadata(sMiddleware, middleware, target);
+        return descriptor;
+    };
+}
+exports.middleware = middleware;
 // Controller class decorator factory
 function controller() {
     return function (constructor) {
@@ -73,10 +86,22 @@ function controller() {
     };
 }
 exports.controller = controller;
+// Initializes an app with a set of route controller classes
 function initAppControllers(app, controllers) {
     controllers.forEach(controllerCls => {
-        const controller = new controllerCls();
         const router = express_1.default.Router();
+        // Handle global middleware
+        const globalMiddleware = (Reflect.getOwnMetadata(sMiddleware, controllerCls) || []);
+        globalMiddleware.forEach(handler => {
+            app.use((req, res, next) => controllerCls[handler](req, res, next));
+        });
+        // Controller-level middleware
+        const controller = new controllerCls();
+        const middleware = (Reflect.getOwnMetadata(sMiddleware, controllerCls.prototype) || []);
+        middleware.forEach(handler => {
+            router.use((req, res, next) => controller[handler](req, res, next));
+        });
+        // Register controller routes
         const routeHandlers = (Reflect.getOwnMetadata(sRoutes, controllerCls.prototype) || {});
         for (const [method, handlers] of Object.entries(routeHandlers)) {
             for (const [path, handlerName] of Object.entries(handlers)) {
