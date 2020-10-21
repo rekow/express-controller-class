@@ -5,7 +5,7 @@ const sRoutes = Symbol('Routes');
 
 interface ControllerClass extends NewableFunction {
   route: string;
-  new(...args: any[]): any
+  new(): any
 }
 
 type RouteConfig = {

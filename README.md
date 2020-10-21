@@ -9,7 +9,7 @@ classes. The util will create singleton instances of each controller, create an 
 `route` those controllers define, and register its decorated methods as handlers on the router. The util then
 calls `app.use()` with each of those Routers before returning the initialized app.
 
-Controller classes are built by the util and should not expose a constructor that requires parameters. Any
+Controller classes are instantiated by the util and should not expose a constructor that requires parameters. Any
 properties on a controller class must be initialized with a default value, or `initAppControllers` will error.
 
 ## Why?
