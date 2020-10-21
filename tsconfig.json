@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "lib": ["es6", "es2017"],
+    "sourceMap": true,
+    "target": "es6",
+    "strict": true,
+    "experimentalDecorators": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "declaration": true,
+    "baseUrl": ".",
+    "importHelpers": true,
+    "skipLibCheck": true,
+    "paths": {
+      "~/*": [
+        "./src/*"
+      ]
+    },
+    "outDir": "./dist",
+    "typeRoots": [
+      "@types",
+      "./node_modules/@types"
+    ]
+  },
+  "exclude": [
+    "node_modules",
+    "local_modules",
+    "dist"
+  ],
+  "include": [
+    "src/**/*.ts",
+    ".eslintrc.js"
+  ]
+}
