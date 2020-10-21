@@ -29,7 +29,7 @@ export function get(path = '/') {
     }
     routeHandlers.get[path] = propertyKey;
 
-    Reflect.defineMetadata(sRoutes, target, routeHandlers);
+    Reflect.defineMetadata(sRoutes, routeHandlers, target);
     
     return descriptor;
   };
@@ -47,7 +47,7 @@ export function post(path = '/') {
     }
     routeHandlers.post[path] = propertyKey;
 
-    Reflect.defineMetadata(sRoutes, target, routeHandlers);
+    Reflect.defineMetadata(sRoutes, routeHandlers, target);
     
     return descriptor;
   };
@@ -65,7 +65,7 @@ export function put(path = '/') {
     }
     routeHandlers.put[path] = propertyKey;
 
-    Reflect.defineMetadata(sRoutes, target, routeHandlers);
+    Reflect.defineMetadata(sRoutes, routeHandlers, target);
     
     return descriptor;
   };
@@ -83,7 +83,7 @@ export function patch(path = '/') {
     }
     routeHandlers.patch[path] = propertyKey;
 
-    Reflect.defineMetadata(sRoutes, target, routeHandlers);
+    Reflect.defineMetadata(sRoutes, routeHandlers, target);
     
     return descriptor;
   };
@@ -101,7 +101,7 @@ export function del(path = '/') {
     }
     routeHandlers.delete[path] = propertyKey;
 
-    Reflect.defineMetadata(sRoutes, target, routeHandlers);
+    Reflect.defineMetadata(sRoutes, routeHandlers, target);
     
     return descriptor;
   };
