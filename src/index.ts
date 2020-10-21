@@ -116,9 +116,9 @@ export function controller() {
 }
 
 export function initAppControllers(
-  app: express.Application,
+  app: express.Router,
   controllers: ControllerClass[]
-): express.Application {
+): express.Router {
   controllers.forEach(controllerCls => {
     const controller = new controllerCls();
     const router = express.Router();

@@ -1,6 +1,6 @@
 {
   "name": "express-controller-class",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Class-based route controllers for Express server.",
   "author": "David Rekow <d@davidrekow.com>",
   "license": "MIT",
